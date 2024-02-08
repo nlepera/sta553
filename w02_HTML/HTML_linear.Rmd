@@ -1,0 +1,662 @@
+---
+title: '<font size = 7 color = "black">Simple Linear Regression Analysis of:<br></font> <font size = 7 color = "white"><i>Taipei Real Estate Data</i></font>'
+subtitle: '<img src="img/for_sale.png" height = 20%, width = 20%>'
+author: '<font size = 5 color = "DarkRed"> <i>Natalie LePera </i></font>'
+institute: '<font size = 6 color = "white">West Chester University of Pennsylvania</font> '
+date: ' <font color = "white" size =4> Prepared for<br> </font> <font color = "DarkRed" size = 6> STA553: Data Visualization (Week 02) </font> <br> <font color = "white" size = 3> Slides available at:</font> <font = "darkred" size = 3> https://rpubs.com/nlepera </font> <font color = "white" size = 3 >AND</font> <font color = "darkred" size = 3> https://github.com/nlepera/sta553 </font>'
+
+
+output:
+  xaringan::moon_reader:
+    css: css/xaringan-themer01.css
+    nature:
+      slideNumberFormat: "%current%"
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+      countIncrementalSlides: true
+    
+      
+---
+class: inverse4, top 
+```{r setup, include=FALSE}
+if(!require("tidyverse")){
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+options(htmltools.dir.version = FALSE)
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("pander")) {
+   install.packages("pander")
+   library(pander)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("ggplot2")) {
+   install.packages("ggplot2")
+   library(ggplot2)
+}
+if (!require("ggpubr")) {
+   install.packages("ggpubr")
+   library(ggpubr)
+}
+
+if(!require("reporter")) {
+  install.packages("reporter")
+  library(reporter)
+}
+
+knitr::opts_chunk$set(
+                  cache = FALSE,
+                  echo = TRUE,
+                  message = FALSE, 
+                  warning = FALSE,
+                  hiline = TRUE
+                  )
+
+
+
+```
+
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+  style_duo_accent(primary_color = "#1F4257",
+          secondary_color = "#380F2A",
+          # fonts
+          header_font_google = google_font("Martel"),
+          text_font_google = google_font("Lato"),
+          code_font_google = google_font("Fira Mono"))
+```
+
+```{r data, include=FALSE}
+library(readr)
+realestate.raw <- read_csv("data.file/Realestate.csv")
+realestate <- subset(realestate.raw, select = -ObsID)
+
+```
+
+
+<h1 align="center"> Table of Contents</h1>
+<BR>
+
+
+- Summary of Data
+
+- Define that Data
+
+- Overall House Price Distribution
+
+- Does Year of Sale Impact Price?
+
+- Does House Age Impact Price?
+
+- Does Distance to Nearest MRT Station Impact Price?
+
+- Does # of Convenience Stores Nearby Impact Price?
+
+- Does Latitude Impact Price?
+
+- Does Longitude Impact Price?
+
+- Conclusions
+
+
+---
+name: Data-Summary
+
+<h1 align = "center">Summary of Data</h1>
+
+
+**Raw Summary**
+```{r echo=FALSE, fig.align='center', out.width = '600px', class.output= 'bg.output'}
+str(realestate)
+```
+<br>
+
+**What does this mean?**
+- 7 Variables
+  - Details on next slide
+- 414 Observations
+
+
+---
+name: Variable-Definition
+
+class: inverse2
+
+<h2 align = "center">Define that Data</h2>
+
+<table align = "center" width = 90% bgcolor="#DEB887">
+	<tbody>
+		<tr>
+			<th>Variable Name (Full)</th>
+			<th>Variable Name (Abrv.)</th>
+			<th>Units/Details </th>
+			<th>Purpose </th>
+		</tr>
+		<tr>
+			<td>Transaction Year </td>
+			<td class="td1">TransactionYear</td> 
+			<td>Year of Construction (details)</td>
+			<td>To determine if year of home construction impacts home price.</td>
+		</tr>
+		<tr>
+			<td>House Age </td>
+			<td class="td1">HouseAge</td>
+			<td>Years (unit)</td>
+			<td>To determine if home age impacts home price.</td>
+		</tr>
+		<tr>
+			<td>Distance to Nearest MRT Station</td>
+			<td class="td1">Distance2MRT</td>
+			<td>Meters (unit)</td>
+			<td>To determine if distance from nearest MRT station impacts home price.</td>
+		</tr>
+		<tr>
+			<td>Number of Nearby Convenience Stores</td>
+			<td class="td1">NumConvenStores</td>
+			<td>Count of Convenience Stores (details)</td>
+			<td>To determine if the number of local convenience stores home average price.</td>
+		</tr>
+		<tr>
+			<td>Latitude</td>
+			<td class="td1">Latitude</td>
+			<td>Latitude of Home (details)</td>
+			<td>To determine if latitude of home impacts home price.</td>
+		</tr>
+		<tr>
+			<td>Longitude</td>
+			<td class="td1">Longitude</td>
+			<td>Longitude of Home (details)</td>
+			<td>To determine if longitude of home impacts home price.</td>
+		</tr>
+		<tr>
+			<td>Price per Unit Area</td>
+			<td class="td1">PriceUnitArea</td>
+			<td>Dollars per Unit Area ex: m<sup>2</sup> (unit)</td>
+			<td>Primary observation! To determine home price. </td>
+		</tr>
+		</tbody>
+
+
+---
+name: price.distribution
+
+class: inverse3
+
+<h1 align="center">Overall Distribution of Price Data</h1>
+
+```{r echo=FALSE}
+library(dplyr)
+price <- count(realestate, realestate$PriceUnitArea)
+colnames(price) <- c("Home_Sale_Price", "Houses_Sold")
+
+```
+
+.pull-left[
+```{r echo=FALSE}
+gghistogram(price, x="Home_Sale_Price", y="count", color = 'navy', fill = 'skyblue', add="mean", rug=TRUE, main="Histogram of House Prices")+ border(size=0) + scale_x_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"),limits = c(0,125))+ scale_y_continuous(name="Houses Sold")+theme(plot.background=element_rect(fill='#FFE6C9'), panel.background = element_rect(fill='#FFE6C9'))
+```
+]
+
+
+.pull-right[
+```{r  echo = FALSE}
+
+ggdensity(price, x="Home_Sale_Price", y="count", color = 'navy', fill = 'skyblue', add="mean", rug=TRUE, main="Density Plot of House Prices") + border(size=0) + scale_x_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"),limits = c(0,125))+ scale_y_continuous(name="Houses Sold")+ theme(plot.background=element_rect(fill='#FFE6C9'), panel.background = element_rect(fill='#FFE6C9'))
+  
+```
+]
+
+
+---
+name:price.year
+class:inverse
+
+<h1 align="center" color="#70384A">Does Year of Sale Impact Price?</h1>
+
+.pull-left[
+```{r echo=FALSE}
+year.price <- subset(realestate, select = c(TransactionYear, PriceUnitArea))
+colnames(year.price) <- c("Year","Price")
+lm.year.price <- lm(formula = Price~Year, data = year.price)
+
+ggplot(year.price, aes(Year, Price), color="#70384A") + xlab("Year of Sale") +  scale_y_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"))+ggtitle("House Prices Per Year of Sale") + geom_point(alpha=0.2, color="#70384A")+ scale_x_continuous(limits=c(2011,2014))+ geom_smooth(method = "lm", se = TRUE,color="black",show.legend = TRUE)
+ 
+
+```
+]
+
+.pull_right[
+
+<br>
+lm(formula = Price ~ Year, data = year.price)
+
+Residuals:
+<table border = 0>
+<tr>
+<th>Min</th>
+<th>1Q</th>
+<th>Median</th>
+<th>3Q</th>
+<th>Max</th>
+</tr>
+<tr>
+<td>-31.113</td>
+<td>-10.261</td>
+<td>0.891</td>
+<td>8.537</td>
+<td>78.787</td>
+<tr/>
+</table>
+
+Coefficients:
+<table border = 0>
+<tr>
+<th></th>
+<th>Estimate</th>
+<th>Std.Error</th>
+<th>t value</th>
+<th>Pr(>|t|)</th>
+</tr>
+<tr>
+<td>(Intercept)</td>
+<td>-4809.462 </td>
+<td>2918.908</td>
+<td>-1.648</td>
+<td>0.1002 </td>
+<tr/>
+<tr>
+<td>Year</td>
+<td>2.408 </td>
+<td>1.450</td>
+<td>1.661</td>
+<td> 0.0975</td>
+<tr/>
+</table>
+<b>Residual standard error:</b> 13.58 on 412 degrees of freedom
+<p><b>Multiple R-squared:</b>  0.00665,	<b>Adjusted R-squared:</b>  0.004238 </p>
+<p><b>F-statistic:</b> 2.758 on 1 and 412 DF,  <b>p-value:</b> 0.09753<p>
+]
+
+
+
+---
+name:price.age
+class:inverse
+
+<h1 align="center">Does Age of House Impact Price?</h1>
+
+.pull-left[
+```{r echo=FALSE}
+age.price <- subset(realestate, select = c(HouseAge, PriceUnitArea))
+colnames(age.price) <- c("Age","Price")
+lm.age.price <- lm(formula = Price~Age, data = age.price)
+
+ggplot(age.price, aes(Age, Price), color="#70384A")+ ggtitle("House Prices Per Age of Home")+ xlab("Age of Home ('Years')")+ scale_y_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area")) + geom_point(alpha=0.2, color="#70384A")+ geom_smooth(method = "lm", se = TRUE,color="black",show.legend = TRUE)
+ 
+
+```
+]
+
+.pull_right[
+
+<br>
+lm(formula = Price ~ Age, data = age.price)
+
+Residuals:
+<table border = 0>
+<tr>
+<th>Min</th>
+<th>1Q</th>
+<th>Median</th>
+<th>3Q</th>
+<th>Max</th>
+</tr>
+<tr>
+<td>-31.113</td>
+<td>-10.738</td>
+<td>1.626 </td>
+<td>8.199 </td>
+<td>77.781 </td>
+<tr/>
+</table>
+
+Coefficients:
+<table border = 0>
+<tr>
+<th></th>
+<th>Estimate</th>
+<th>Std.Error</th>
+<th>t value</th>
+<th>Pr(>|t|)</th>
+</tr>
+<tr>
+<td>(Intercept)</td>
+<td>42.43470</td>
+<td>1.21098</td>
+<td>35.042</td>
+<td>< 2e-16 ***</td>
+<tr/>
+<tr>
+<td>Age</td>
+<td>-0.25149</td>
+<td>0.05752</td>
+<td>-4.372</td>
+<td>1.56e-05 ***</td>
+<tr/>
+</table>
+<b>Residual standard error:</b> 13.32 on 412 degrees of freedom
+<p><b>Multiple R-squared:</b>  0.04434,	<b>Adjusted R-squared:</b>  0.04202 </p>
+<p><b>F-statistic:</b> 19.11 on 1 and 412 DF,  <b>p-value:</b> 1.56e-05<p>
+]
+
+---
+name:price.MRT
+class:inverse
+
+<h1 align="center">Does Distance to MRT Station Impact Price?</h1>
+
+.pull-left[
+```{r echo=FALSE}
+mrt.price <- subset(realestate, select = c(Distance2MRT, PriceUnitArea))
+colnames(mrt.price) <- c("MRT","Price")
+lm.mrt.price <- lm(formula = Price~MRT, data = mrt.price)
+
+ggplot(mrt.price, aes(MRT, Price), color="#70384A")+ ggtitle("House Prices Per Distance to MRT Station") +xlab("Distance to MRT Staion ('m')")+ scale_y_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"))+ geom_point(alpha=0.2, color="#70384A")+ geom_smooth(method = "lm", se = TRUE,color="black",show.legend = TRUE)
+ 
+
+```
+]
+
+.pull_right[
+
+<br>
+lm(formula = Price ~ MRT, data = mrt.price)
+
+Residuals:
+<table border = 0>
+<tr>
+<th>Min</th>
+<th>1Q</th>
+<th>Median</th>
+<th>3Q</th>
+<th>Max</th>
+</tr>
+<tr>
+<td>-35.396</td>
+<td>-6.007</td>
+<td>-1.195</td>
+<td>4.831</td>
+<td>73.483</td>
+<tr/>
+</table>
+
+Coefficients:
+<table border = 0>
+<tr>
+<th></th>
+<th>Estimate</th>
+<th>Std.Error</th>
+<th>t value</th>
+<th>Pr(>|t|)</th>
+</tr>
+<tr>
+<td>(Intercept)</td>
+<td>45.8514271</td>
+<td>0.6526105</td>
+<td>70.26</td>
+<td><2e-16 ***</td>
+<tr/>
+<tr>
+<td>MRT</td>
+<td>-0.0072621</td>
+<td>0.0003925</td>
+<td>-18.50</td>
+<td><2e-16 ***</td>
+<tr/>
+</table>
+<b>Residual standard error:</b> 10.07 on 412 degrees of freedom
+<p><b>Multiple R-squared:</b>  0.4538,	<b>Adjusted R-squared:</b>0.4524</p>
+<p><b>F-statistic:</b> 342.2 on 1 and 412 DF,  <b>p-value:</b>< 2.2e-16<p>
+]
+
+class: inverse1 center middle 
+---
+name:price.convenience
+class:inverse
+
+<h1 align="center">Does # of Convenience Stores Impact Price?</h1>
+
+.pull-left[
+```{r echo=FALSE}
+conv.price <- subset(realestate, select = c(NumConvenStores, PriceUnitArea))
+colnames(conv.price) <- c("Conv","Price")
+lm.conv.price <- lm(formula = Price~Conv, data = conv.price)
+
+ggplot(conv.price, aes(Conv, Price), color="#70384A")+ xlab("Number of Nearby Convenience Stores")+scale_y_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"))+ ggtitle("House Prices Per Number of Nearby Convenience Stores") + geom_point(alpha=0.2, color="#70384A")+ geom_smooth(method = "lm", se = TRUE,color="black",show.legend = TRUE)
+ 
+
+```
+]
+
+.pull_right[
+
+<br>
+lm(formula = Price ~ Conv, data = conv.price)
+
+Residuals:
+<table border = 0>
+<tr>
+<th>Min</th>
+<th>1Q</th>
+<th>Median</th>
+<th>3Q</th>
+<th>Max</th>
+</tr>
+<tr>
+<td>-35.407</td>
+<td>-7.341</td>
+<td>-1.788</td>
+<td>5.984</td>
+<td>87.681</td>
+<tr/>
+</table>
+
+Coefficients:
+<table border = 0>
+<tr>
+<th></th>
+<th>Estimate</th>
+<th>Std.Error</th>
+<th>t value</th>
+<th>Pr(>|t|)</th>
+</tr>
+<tr>
+<td>(Intercept)</td>
+<td>27.1811</td>
+<td>0.9419</td>
+<td>28.86</td>
+<td><2e-16 ***</td>
+<tr/>
+<tr>
+<td>Conv</td>
+<td>2.6377</td>
+<td>0.1868</td>
+<td>14.12</td>
+<td><2e-16 ***</td>
+<tr/>
+</table>
+<b>Residual standard error:</b> 11.18 on 412 degrees of freedom
+<p><b>Multiple R-squared:</b>  0.326,	<b>Adjusted R-squared:</b>  0.3244 </p>
+<p><b>F-statistic:</b> 199.3 on 1 and 412 DF,  <b>p-value:</b>< 2.2e-16<p>
+]
+
+class: inverse1 center middle 
+
+
+---
+name:price.latitude
+class:inverse
+
+<h1 align="center">Does Latitude Impact Price?</h1>
+
+.pull-left[
+```{r echo=FALSE}
+lat.price <- subset(realestate, select = c(Latitude, PriceUnitArea))
+colnames(lat.price) <- c("Lat","Price")
+lm.lat.price <- lm(formula = Price~Lat, data = lat.price)
+
+ggplot(lat.price, aes(Lat, Price), color="#70384A")+ xlab("Latitude (Degrees)")+scale_y_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"))+ ggtitle("House Prices Per Latitude") + geom_point(alpha=0.2, color="#70384A")+ geom_smooth(method = "lm", se = TRUE,color="black",show.legend = TRUE)
+ 
+
+```
+]
+
+.pull_right[
+
+<br>
+lm(formula = Price ~ Long, data = long.price)
+
+Residuals:
+<table border = 0>
+<tr>
+<th>Min</th>
+<th>1Q</th>
+<th>Median</th>
+<th>3Q</th>
+<th>Max</th>
+</tr>
+<tr>
+<td>-37.969</td>
+<td>-7.347</td>
+<td>-1.392</td>
+<td>5.685</td>
+<td>76.184</td>
+<tr/>
+</table>
+
+Coefficients:
+<table border = 0>
+<tr>
+<th></th>
+<th>Estimate</th>
+<th>Std.Error</th>
+<th>t value</th>
+<th>Pr(>|t|)</th>
+</tr>
+<tr>
+<td>(Intercept)</td>
+<td>-14917.68</td>
+<td>1129.66</td>
+<td>-13.21</td>
+<td><2e-16 ***</td>
+<tr/>
+<tr>
+<td>Lat</td>
+<td>598.97</td>
+<td>45.24</td>
+<td>13.24</td>
+<td><2e-16 ***</td>
+<tr/>
+</table>
+<b>Residual standard error:</b> 11.41 on 412 degrees of freedom
+<p><b>Multiple R-squared:</b>  0.2985,	<b>Adjusted R-squared:</b>0.2967</p>
+<p><b>F-statistic:</b> 175.3 on 1 and 412 DF,  <b>p-value:</b>< 2.2e-16<p>
+]
+---
+name:price.longitude
+class:inverse
+
+<h1 align="center">Does Longitude Impact Price?</h1>
+
+.pull-left[
+```{r echo=FALSE}
+long.price <- subset(realestate, select = c(Longitude, PriceUnitArea))
+colnames(long.price) <- c("Long","Price")
+lm.long.price <- lm(formula = Price~Long, data = long.price)
+
+ggplot(long.price, aes(Long, Price), color="#70384A")+ xlab("Longitude (Degrees)")+scale_y_continuous(name="House Sale Price", labels = scales::dollar_format(scale = 1, suffix = "/Unit Area"))+ ggtitle("House Prices Per Longitude") + geom_point(alpha=0.2, color="#70384A")+ geom_smooth(method = "lm", se = TRUE,color="black",show.legend = TRUE)
+ 
+
+```
+]
+
+.pull_right[
+
+<br>
+lm(formula = Price ~ Long, data = long.price)
+
+Residuals:
+<table border = 0>
+<tr>
+<th>Min</th>
+<th>1Q</th>
+<th>Median</th>
+<th>3Q</th>
+<th>Max</th>
+</tr>
+<tr>
+<td>-32.588</td>
+<td>-5.693</td>
+<td>-0.417</td>
+<td>6.157</td>
+<td>80.866</td>
+<tr/>
+</table>
+
+Coefficients:
+<table border = 0>
+<tr>
+<th></th>
+<th>Estimate</th>
+<th>Std.Error</th>
+<th>t value</th>
+<th>Pr(>|t|)</th>
+</tr>
+<tr>
+<td>(Intercept)</td>
+<td>27.1811</td>
+<td>0.9419</td>
+<td>28.86</td>
+<td><2e-16 ***</td>
+<tr/>
+<tr>
+<td>Long</td>
+<td>463.93</td>
+<td>37.22</td>
+<td>12.46</td>
+<td><2e-16 ***</td>
+<tr/>
+</table>
+<b>Residual standard error:</b> 11.61 on 412 degrees of freedom
+<p><b>Multiple R-squared:</b>  0.2738,	<b>Adjusted R-squared:</b>0.2721</p>
+<p><b>F-statistic:</b> 155.4 on 1 and 412 DF,  <b>p-value:</b>< 2.2e-16<p>
+]
+
+---
+name:Conclusions
+class:inverse4
+
+<h1 align="center">Analysis Conclusions</h1>
+
+- Multiple linear regressions show statistically significant p values (p<0.05)
+    - Age of Home (p<1.56e-05)
+    - Distance to MRT Station (p<2.2e-16)
+    - Number of Nearby Convenience stores (p<2.2e-16)
+    - Latitude (p<2.2e-16)
+    - Longitude (p<2.2e-16)
+    
+- F-Statistic acts as secondary check to Variance when p value is significant
+    - Age of Home (19.11 on 1 and 412 DF)
+  
+- House price seen in Taipei real-estate in 2012-2013 is most closely correlated with <b>Age of House</b>
+
+
+

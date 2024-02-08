@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Simple Linear Regression Analysis of:  Taipei Real Estate Data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content=" Natalie LePera " />
+    <script src="HTML_linear_files/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer01.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# <font size = 7 color = "black">Simple Linear Regression Analysis of:<br></font> <font size = 7 color = "white"><i>Taipei Real Estate Data</i></font>
+]
+.subtitle[
+## <img src="img/for_sale.png" height = 20%, width = 20%>
+]
+.author[
+### <font size = 5 color = "DarkRed"> <i>Natalie LePera </i></font>
+]
+.institute[
+### <font size = 6 color = "white">West Chester University of Pennsylvania</font>
+]
+.date[
+### <font color = "white" size =4> Prepared for<br> </font> <font color = "DarkRed" size = 6> STA553: Data Visualization (Week 02) </font> <br> <font color = "white" size = 3> Slides available at:</font> &lt;font = “darkred” size = 3&gt; <a href="https://rpubs.com/nlepera" class="uri">https://rpubs.com/nlepera</a> </font> <font color = "white" size = 3 >AND</font> <font color = "darkred" size = 3> <a href="https://github.com/nlepera/sta553" class="uri">https://github.com/nlepera/sta553</a> </font>
+]
+
+---
+
+class: inverse4, top 
+
+
+
+
+
+
+
+
+&lt;h1 align="center"&gt; Table of Contents&lt;/h1&gt;
+&lt;BR&gt;
+
+
+- Summary of Data
+
+- Define that Data
+
+- Overall House Price Distribution
+
+- Does Year of Sale Impact Price?
+
+- Does House Age Impact Price?
+
+- Does Distance to Nearest MRT Station Impact Price?
+
+- Does # of Convenience Stores Nearby Impact Price?
+
+- Does Latitude Impact Price?
+
+- Does Longitude Impact Price?
+
+- Conclusions
+
+
+---
+name: Data-Summary
+
+&lt;h1 align = "center"&gt;Summary of Data&lt;/h1&gt;
+
+
+**Raw Summary**
+
+```{.bg.output}
+## tibble [414 × 7] (S3: tbl_df/tbl/data.frame)
+##  $ TransactionYear: num [1:414] 2012 2012 2013 2013 2012 ...
+##  $ HouseAge       : num [1:414] 32 19.5 13.3 13.3 5 7.1 34.5 20.3 31.7 17.9 ...
+##  $ Distance2MRT   : num [1:414] 84.9 306.6 562 562 390.6 ...
+##  $ NumConvenStores: num [1:414] 10 9 5 5 5 3 7 6 1 3 ...
+##  $ Latitude       : num [1:414] 25 25 25 25 25 ...
+##  $ Longitude      : num [1:414] 122 122 122 122 122 ...
+##  $ PriceUnitArea  : num [1:414] 37.9 42.2 47.3 54.8 43.1 32.1 40.3 46.7 18.8 22.1 ...
+```
+&lt;br&gt;
+
+**What does this mean?**
+- 7 Variables
+  - Details on next slide
+- 414 Observations
+
+
+---
+name: Variable-Definition
+
+class: inverse2
+
+&lt;h2 align = "center"&gt;Define that Data&lt;/h2&gt;
+
+&lt;table align = "center" width = 90% bgcolor="#DEB887"&gt;
+	&lt;tbody&gt;
+		&lt;tr&gt;
+			&lt;th&gt;Variable Name (Full)&lt;/th&gt;
+			&lt;th&gt;Variable Name (Abrv.)&lt;/th&gt;
+			&lt;th&gt;Units/Details &lt;/th&gt;
+			&lt;th&gt;Purpose &lt;/th&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;Transaction Year &lt;/td&gt;
+			&lt;td class="td1"&gt;TransactionYear&lt;/td&gt; 
+			&lt;td&gt;Year of Construction (details)&lt;/td&gt;
+			&lt;td&gt;To determine if year of home construction impacts home price.&lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;House Age &lt;/td&gt;
+			&lt;td class="td1"&gt;HouseAge&lt;/td&gt;
+			&lt;td&gt;Years (unit)&lt;/td&gt;
+			&lt;td&gt;To determine if home age impacts home price.&lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;Distance to Nearest MRT Station&lt;/td&gt;
+			&lt;td class="td1"&gt;Distance2MRT&lt;/td&gt;
+			&lt;td&gt;Meters (unit)&lt;/td&gt;
+			&lt;td&gt;To determine if distance from nearest MRT station impacts home price.&lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;Number of Nearby Convenience Stores&lt;/td&gt;
+			&lt;td class="td1"&gt;NumConvenStores&lt;/td&gt;
+			&lt;td&gt;Count of Convenience Stores (details)&lt;/td&gt;
+			&lt;td&gt;To determine if the number of local convenience stores home average price.&lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;Latitude&lt;/td&gt;
+			&lt;td class="td1"&gt;Latitude&lt;/td&gt;
+			&lt;td&gt;Latitude of Home (details)&lt;/td&gt;
+			&lt;td&gt;To determine if latitude of home impacts home price.&lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;Longitude&lt;/td&gt;
+			&lt;td class="td1"&gt;Longitude&lt;/td&gt;
+			&lt;td&gt;Longitude of Home (details)&lt;/td&gt;
+			&lt;td&gt;To determine if longitude of home impacts home price.&lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;tr&gt;
+			&lt;td&gt;Price per Unit Area&lt;/td&gt;
+			&lt;td class="td1"&gt;PriceUnitArea&lt;/td&gt;
+			&lt;td&gt;Dollars per Unit Area ex: m&lt;sup&gt;2&lt;/sup&gt; (unit)&lt;/td&gt;
+			&lt;td&gt;Primary observation! To determine home price. &lt;/td&gt;
+		&lt;/tr&gt;
+		&lt;/tbody&gt;
+
+
+---
+name: price.distribution
+
+class: inverse3
+
+&lt;h1 align="center"&gt;Overall Distribution of Price Data&lt;/h1&gt;
+
+
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+]
+
+
+.pull-right[
+![](HTML_linear_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+]
+
+
+---
+name:price.year
+class:inverse
+
+&lt;h1 align="center" color="#70384A"&gt;Does Year of Sale Impact Price?&lt;/h1&gt;
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+]
+
+.pull_right[
+
+&lt;br&gt;
+lm(formula = Price ~ Year, data = year.price)
+
+Residuals:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;Min&lt;/th&gt;
+&lt;th&gt;1Q&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;3Q&lt;/th&gt;
+&lt;th&gt;Max&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;-31.113&lt;/td&gt;
+&lt;td&gt;-10.261&lt;/td&gt;
+&lt;td&gt;0.891&lt;/td&gt;
+&lt;td&gt;8.537&lt;/td&gt;
+&lt;td&gt;78.787&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+
+Coefficients:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Estimate&lt;/th&gt;
+&lt;th&gt;Std.Error&lt;/th&gt;
+&lt;th&gt;t value&lt;/th&gt;
+&lt;th&gt;Pr(&gt;|t|)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;(Intercept)&lt;/td&gt;
+&lt;td&gt;-4809.462 &lt;/td&gt;
+&lt;td&gt;2918.908&lt;/td&gt;
+&lt;td&gt;-1.648&lt;/td&gt;
+&lt;td&gt;0.1002 &lt;/td&gt;
+&lt;tr/&gt;
+&lt;tr&gt;
+&lt;td&gt;Year&lt;/td&gt;
+&lt;td&gt;2.408 &lt;/td&gt;
+&lt;td&gt;1.450&lt;/td&gt;
+&lt;td&gt;1.661&lt;/td&gt;
+&lt;td&gt; 0.0975&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+&lt;b&gt;Residual standard error:&lt;/b&gt; 13.58 on 412 degrees of freedom
+&lt;p&gt;&lt;b&gt;Multiple R-squared:&lt;/b&gt;  0.00665,	&lt;b&gt;Adjusted R-squared:&lt;/b&gt;  0.004238 &lt;/p&gt;
+&lt;p&gt;&lt;b&gt;F-statistic:&lt;/b&gt; 2.758 on 1 and 412 DF,  &lt;b&gt;p-value:&lt;/b&gt; 0.09753&lt;p&gt;
+]
+
+
+
+---
+name:price.age
+class:inverse
+
+&lt;h1 align="center"&gt;Does Age of House Impact Price?&lt;/h1&gt;
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+]
+
+.pull_right[
+
+&lt;br&gt;
+lm(formula = Price ~ Age, data = age.price)
+
+Residuals:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;Min&lt;/th&gt;
+&lt;th&gt;1Q&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;3Q&lt;/th&gt;
+&lt;th&gt;Max&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;-31.113&lt;/td&gt;
+&lt;td&gt;-10.738&lt;/td&gt;
+&lt;td&gt;1.626 &lt;/td&gt;
+&lt;td&gt;8.199 &lt;/td&gt;
+&lt;td&gt;77.781 &lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+
+Coefficients:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Estimate&lt;/th&gt;
+&lt;th&gt;Std.Error&lt;/th&gt;
+&lt;th&gt;t value&lt;/th&gt;
+&lt;th&gt;Pr(&gt;|t|)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;(Intercept)&lt;/td&gt;
+&lt;td&gt;42.43470&lt;/td&gt;
+&lt;td&gt;1.21098&lt;/td&gt;
+&lt;td&gt;35.042&lt;/td&gt;
+&lt;td&gt;&lt; 2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;tr&gt;
+&lt;td&gt;Age&lt;/td&gt;
+&lt;td&gt;-0.25149&lt;/td&gt;
+&lt;td&gt;0.05752&lt;/td&gt;
+&lt;td&gt;-4.372&lt;/td&gt;
+&lt;td&gt;1.56e-05 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+&lt;b&gt;Residual standard error:&lt;/b&gt; 13.32 on 412 degrees of freedom
+&lt;p&gt;&lt;b&gt;Multiple R-squared:&lt;/b&gt;  0.04434,	&lt;b&gt;Adjusted R-squared:&lt;/b&gt;  0.04202 &lt;/p&gt;
+&lt;p&gt;&lt;b&gt;F-statistic:&lt;/b&gt; 19.11 on 1 and 412 DF,  &lt;b&gt;p-value:&lt;/b&gt; 1.56e-05&lt;p&gt;
+]
+
+---
+name:price.MRT
+class:inverse
+
+&lt;h1 align="center"&gt;Does Distance to MRT Station Impact Price?&lt;/h1&gt;
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+]
+
+.pull_right[
+
+&lt;br&gt;
+lm(formula = Price ~ MRT, data = mrt.price)
+
+Residuals:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;Min&lt;/th&gt;
+&lt;th&gt;1Q&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;3Q&lt;/th&gt;
+&lt;th&gt;Max&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;-35.396&lt;/td&gt;
+&lt;td&gt;-6.007&lt;/td&gt;
+&lt;td&gt;-1.195&lt;/td&gt;
+&lt;td&gt;4.831&lt;/td&gt;
+&lt;td&gt;73.483&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+
+Coefficients:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Estimate&lt;/th&gt;
+&lt;th&gt;Std.Error&lt;/th&gt;
+&lt;th&gt;t value&lt;/th&gt;
+&lt;th&gt;Pr(&gt;|t|)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;(Intercept)&lt;/td&gt;
+&lt;td&gt;45.8514271&lt;/td&gt;
+&lt;td&gt;0.6526105&lt;/td&gt;
+&lt;td&gt;70.26&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;tr&gt;
+&lt;td&gt;MRT&lt;/td&gt;
+&lt;td&gt;-0.0072621&lt;/td&gt;
+&lt;td&gt;0.0003925&lt;/td&gt;
+&lt;td&gt;-18.50&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+&lt;b&gt;Residual standard error:&lt;/b&gt; 10.07 on 412 degrees of freedom
+&lt;p&gt;&lt;b&gt;Multiple R-squared:&lt;/b&gt;  0.4538,	&lt;b&gt;Adjusted R-squared:&lt;/b&gt;0.4524&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;F-statistic:&lt;/b&gt; 342.2 on 1 and 412 DF,  &lt;b&gt;p-value:&lt;/b&gt;&lt; 2.2e-16&lt;p&gt;
+]
+
+class: inverse1 center middle 
+---
+name:price.convenience
+class:inverse
+
+&lt;h1 align="center"&gt;Does # of Convenience Stores Impact Price?&lt;/h1&gt;
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+]
+
+.pull_right[
+
+&lt;br&gt;
+lm(formula = Price ~ Conv, data = conv.price)
+
+Residuals:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;Min&lt;/th&gt;
+&lt;th&gt;1Q&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;3Q&lt;/th&gt;
+&lt;th&gt;Max&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;-35.407&lt;/td&gt;
+&lt;td&gt;-7.341&lt;/td&gt;
+&lt;td&gt;-1.788&lt;/td&gt;
+&lt;td&gt;5.984&lt;/td&gt;
+&lt;td&gt;87.681&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+
+Coefficients:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Estimate&lt;/th&gt;
+&lt;th&gt;Std.Error&lt;/th&gt;
+&lt;th&gt;t value&lt;/th&gt;
+&lt;th&gt;Pr(&gt;|t|)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;(Intercept)&lt;/td&gt;
+&lt;td&gt;27.1811&lt;/td&gt;
+&lt;td&gt;0.9419&lt;/td&gt;
+&lt;td&gt;28.86&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;tr&gt;
+&lt;td&gt;Conv&lt;/td&gt;
+&lt;td&gt;2.6377&lt;/td&gt;
+&lt;td&gt;0.1868&lt;/td&gt;
+&lt;td&gt;14.12&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+&lt;b&gt;Residual standard error:&lt;/b&gt; 11.18 on 412 degrees of freedom
+&lt;p&gt;&lt;b&gt;Multiple R-squared:&lt;/b&gt;  0.326,	&lt;b&gt;Adjusted R-squared:&lt;/b&gt;  0.3244 &lt;/p&gt;
+&lt;p&gt;&lt;b&gt;F-statistic:&lt;/b&gt; 199.3 on 1 and 412 DF,  &lt;b&gt;p-value:&lt;/b&gt;&lt; 2.2e-16&lt;p&gt;
+]
+
+class: inverse1 center middle 
+
+
+---
+name:price.latitude
+class:inverse
+
+&lt;h1 align="center"&gt;Does Latitude Impact Price?&lt;/h1&gt;
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+]
+
+.pull_right[
+
+&lt;br&gt;
+lm(formula = Price ~ Long, data = long.price)
+
+Residuals:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;Min&lt;/th&gt;
+&lt;th&gt;1Q&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;3Q&lt;/th&gt;
+&lt;th&gt;Max&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;-37.969&lt;/td&gt;
+&lt;td&gt;-7.347&lt;/td&gt;
+&lt;td&gt;-1.392&lt;/td&gt;
+&lt;td&gt;5.685&lt;/td&gt;
+&lt;td&gt;76.184&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+
+Coefficients:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Estimate&lt;/th&gt;
+&lt;th&gt;Std.Error&lt;/th&gt;
+&lt;th&gt;t value&lt;/th&gt;
+&lt;th&gt;Pr(&gt;|t|)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;(Intercept)&lt;/td&gt;
+&lt;td&gt;-14917.68&lt;/td&gt;
+&lt;td&gt;1129.66&lt;/td&gt;
+&lt;td&gt;-13.21&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;tr&gt;
+&lt;td&gt;Lat&lt;/td&gt;
+&lt;td&gt;598.97&lt;/td&gt;
+&lt;td&gt;45.24&lt;/td&gt;
+&lt;td&gt;13.24&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+&lt;b&gt;Residual standard error:&lt;/b&gt; 11.41 on 412 degrees of freedom
+&lt;p&gt;&lt;b&gt;Multiple R-squared:&lt;/b&gt;  0.2985,	&lt;b&gt;Adjusted R-squared:&lt;/b&gt;0.2967&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;F-statistic:&lt;/b&gt; 175.3 on 1 and 412 DF,  &lt;b&gt;p-value:&lt;/b&gt;&lt; 2.2e-16&lt;p&gt;
+]
+---
+name:price.longitude
+class:inverse
+
+&lt;h1 align="center"&gt;Does Longitude Impact Price?&lt;/h1&gt;
+
+.pull-left[
+![](HTML_linear_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+]
+
+.pull_right[
+
+&lt;br&gt;
+lm(formula = Price ~ Long, data = long.price)
+
+Residuals:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;Min&lt;/th&gt;
+&lt;th&gt;1Q&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;3Q&lt;/th&gt;
+&lt;th&gt;Max&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;-32.588&lt;/td&gt;
+&lt;td&gt;-5.693&lt;/td&gt;
+&lt;td&gt;-0.417&lt;/td&gt;
+&lt;td&gt;6.157&lt;/td&gt;
+&lt;td&gt;80.866&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+
+Coefficients:
+&lt;table border = 0&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Estimate&lt;/th&gt;
+&lt;th&gt;Std.Error&lt;/th&gt;
+&lt;th&gt;t value&lt;/th&gt;
+&lt;th&gt;Pr(&gt;|t|)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;(Intercept)&lt;/td&gt;
+&lt;td&gt;27.1811&lt;/td&gt;
+&lt;td&gt;0.9419&lt;/td&gt;
+&lt;td&gt;28.86&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;tr&gt;
+&lt;td&gt;Long&lt;/td&gt;
+&lt;td&gt;463.93&lt;/td&gt;
+&lt;td&gt;37.22&lt;/td&gt;
+&lt;td&gt;12.46&lt;/td&gt;
+&lt;td&gt;&lt;2e-16 ***&lt;/td&gt;
+&lt;tr/&gt;
+&lt;/table&gt;
+&lt;b&gt;Residual standard error:&lt;/b&gt; 11.61 on 412 degrees of freedom
+&lt;p&gt;&lt;b&gt;Multiple R-squared:&lt;/b&gt;  0.2738,	&lt;b&gt;Adjusted R-squared:&lt;/b&gt;0.2721&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;F-statistic:&lt;/b&gt; 155.4 on 1 and 412 DF,  &lt;b&gt;p-value:&lt;/b&gt;&lt; 2.2e-16&lt;p&gt;
+]
+
+---
+name:Conclusions
+class:inverse4
+
+&lt;h1 align="center"&gt;Analysis Conclusions&lt;/h1&gt;
+
+- Multiple linear regressions show statistically significant p values (p&lt;0.05)
+    - Age of Home (p&lt;1.56e-05)
+    - Distance to MRT Station (p&lt;2.2e-16)
+    - Number of Nearby Convenience stores (p&lt;2.2e-16)
+    - Latitude (p&lt;2.2e-16)
+    - Longitude (p&lt;2.2e-16)
+    
+- F-Statistic acts as secondary check to Variance when p value is significant
+    - Age of Home (19.11 on 1 and 412 DF)
+  
+- House price seen in Taipei real-estate in 2012-2013 is most closely correlated with &lt;b&gt;Age of House&lt;/b&gt;
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
