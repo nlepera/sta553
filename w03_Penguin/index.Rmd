@@ -1,0 +1,95 @@
+---
+title: "<font size = 7>Waddling Weights: Penguin Size Distribution Based on Island of Origin, Species, and Sex</font>"
+subtitle: "Natalie LePera"
+author: "West Chester University<br>STA553: Data Visualization"
+institute: 
+output:
+  xaringan::moon_reader:
+    css: css/xaringan-themer-penguin.css
+    nature:
+      slideNumberFormat: "%current%"
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+      countIncrementalSlides: true
+---
+class: inverse, top, center
+<h3>Overall Penguin Size by Species, Island, and Gender</h3>
+<p>As table below illustrates, populations of male and female penguins are near heterogeneous and such were separated accordingly for analysis. 
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("pander")) {
+   install.packages("pander")
+   library(pander)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("ggplot2")) {
+   install.packages("ggplot2")
+   library(ggplot2)
+}
+if (!require("graphics")) {
+   install.packages("graphics")
+   library(graphics)
+}
+if (!require("grDevices")) {
+   install.packages("grDevices")
+   library(grDevices)
+}
+if (!require("ggpubr")) {
+   install.packages("ggpubr")
+   library(ggpubr)
+}
+if (!require("magick")) {
+   install.packages("magick")
+   library(magick)
+}
+knitr::opts_chunk$set(
+                  cache = FALSE,
+                  echo = TRUE,
+                  message = FALSE, 
+                  warning = FALSE,
+                  hiline = TRUE
+                  )
+```
+
+
+
+```{r echo=FALSE}
+library(tidyverse)
+pen <- read.csv("https://nlepera.github.io/sta553/w03_Penguin/data/w03-penguins.csv")
+pen.male <- filter(pen, sex == "male")
+pen.female <- filter(pen, sex == "female")
+pen.cute.file <- "https://nlepera.github.io/sta553/w03_Penguin/img/penguin_cute.png"
+pen.cute <- image_read(pen.cute.file)
+pen$year <- factor(pen$year)
+```
+
+```{r echo = FALSE, out.height="475px",out.width="75%", align="center"}
+pen.male.plot <- ggplot(pen.male)+
+  aes(bill_length_mm, flipper_length_mm, color = species)+
+  annotation_raster(pen.cute, ymin=175, ymax=185, xmin=60, xmax=75)+
+  geom_point(aes(size = body_mass_g, alpha = 0.1, shape=island))+
+  labs(title="Male",x="Penguin Bill Length (mm)", y="Penguin Flipper Length (mm)", color="Species", size="Body Mass (g)", shape="Island")+
+  xlim(25, 75)+
+  ylim(175, 225)+
+  guides(alpha ="none")
+  
+pen.female.plot <- ggplot(pen.female)+
+  aes(bill_length_mm, flipper_length_mm, color = species)+
+  annotation_raster(pen.cute, ymin=175, ymax=185, xmin=60, xmax=75)+
+  geom_point(aes(size = body_mass_g, alpha = 0.1, shape=island))+
+  labs(title="Female",x="Penguin Bill Length (mm)", y="Penguin Flipper Length (mm)", color="Species", size="Body Mass (g)", shape="Island")+
+  xlim(25, 75)+
+  ylim(175, 225)+
+  guides(alpha ="none")  
+ggpubr::ggarrange(pen.male.plot, pen.female.plot + rremove("ylab"), common.legend=TRUE, legend = "right" , ncol = 2)
+```
+
