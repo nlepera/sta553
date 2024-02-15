@@ -67,6 +67,13 @@
 }
 
 /*inserting penguin in title slide*/
+.title-slide, .title-slide h1, .title-slide h2, .title-slide h3 {
+  color: var(--title-slide-text-color);
+}
+
+.title-slide .remark-slide-number {
+  display: none;
+}
 .title-slide {
 	background-image: url(https://nlepera.github.io/sta553/w03_Penguin/img/penguin_cover.jpg);
 	background-position: bottom right;
@@ -147,13 +154,7 @@ a, a > code {
 .inverse a, .inverse a > code {
   color: var(--inverse-link-color);
 }
-.title-slide, .title-slide h1, .title-slide h2, .title-slide h3 {
-  color: var(--title-slide-text-color);
-}
 
-.title-slide .remark-slide-number {
-  display: none;
-}
 /* Two-column layout */
 .left-column {
   width: 20%;
