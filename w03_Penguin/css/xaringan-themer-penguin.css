@@ -66,6 +66,14 @@
   --black: #000000;
 }
 
+/*inserting penguin in title slide*/
+.title-slide {
+	background-image: url(https://nlepera.github.io/sta553/w03_Penguin/img/penguin_cover.jpg);
+	background-position: bottom right;
+	background-size: 300px;
+  	background-color: var(--title-slide-background-color);
+	padding-left: 100px;  /* delete this for 4:3 aspect ratio */
+}
 html {
   font-size: var(--base-font-size);
 }
@@ -142,13 +150,7 @@ a, a > code {
 .title-slide, .title-slide h1, .title-slide h2, .title-slide h3 {
   color: var(--title-slide-text-color);
 }
-.title-slide {
-	background-image: url(https://nlepera.github.io/sta553/w03_Penguin/img/penguin_cover.jpg);
-	background-position: bottom right;
-	background-size: 300px;
-  	background-color: var(--title-slide-background-color);
-	padding-left: 100px;  /* delete this for 4:3 aspect ratio */
-}
+
 .title-slide .remark-slide-number {
   display: none;
 }
