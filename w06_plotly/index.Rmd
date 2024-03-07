@@ -1,0 +1,334 @@
+---
+title: "The Price of Longevity: An Analysis of Annual Income on Life Expectancy<br><br><i>Global Data for 2015 vs All Years</i>"
+author: "Natalie LePera"
+date: "West Chester University <br>STA 503: Data Visualization"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+---
+
+```{=html}
+<style type="text/css">
+
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+/* mouse over link */
+div#TOC a:hover {
+  color: red;
+}
+
+/* unvisited link */
+div#TOC a:link {
+  color: blue;
+}
+
+
+
+h1.title {
+  font-size: 24px;
+  color: Darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.subtitle {
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { 
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h1 {
+    font-size: 24px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: center;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: green;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+
+</style>
+```
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")           # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+### ggplot and extensions
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("ggridges")) {
+    install.packages("ggridges")              
+    library("ggridges")
+}
+if (!require("graphics")) {
+    install.packages("graphics")              
+    library("graphics")
+}
+if (!require("openxlsx")) {
+    install.packages("openxlsx")              
+    library("openxlsx")
+}
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+\
+
+# Introduction to the data
+The analysis of impact of average annual income on life expectancy as seen globally in 2015, the single data of merged longitudinal and categorical (named LifeExp_Clean) data that was cleaned as part of <a href="https://nlepera.github.io/sta553/w05_ggplot/">"The Race to Immortality: An analysis of variables impacting average life expectancy"</a> will be utilized.  This overall merged data frame includes the following information for each country:
+
+-   Average Life Expectancy
+-   Average Annual Income
+-   Annual Country Population Data
+-   Country Region Data
+
+```{r}
+life.raw <- read.xlsx("https://nlepera.github.io/sta553/w05_ggplot/LifeExp_Clean.xlsx")
+```
+
+```{r echo = TRUE}
+str(life.raw)
+```
+
+```{r}
+DT::datatable(life.raw, fillContainer = FALSE, options = list(pageLength = 10))
+```
+<br>
+<br>
+<br>
+
+# Pruning the Data for Visualization Purposes
+In order to properly visualize data of this scale a subset for the year 2015 was taken (named <font color = "purple"><i>data2015</i></font>)
+
+```{r}
+data2015 <- filter(life.raw, Year == "X2015")
+```
+
+```{r echo = TRUE}
+str(data2015)
+```
+
+```{r}
+DT::datatable(data2015, fillContainer = FALSE, options = list(pageLength = 10))
+```
+<br>
+<br>
+<br>
+
+# Plotting the Data
+
+## 2015 Data
+The Prepared and Pruned data as found in <font color = "purple"><i>data2015</i></font> is plotted below. Due to the presence of 174 countries, color coding is on the continent level to allow for ease of visibility and differentiation.
+
+```{r}
+plot_ly(
+    data = data2015,
+    x = ~Income,  
+    y = ~Life_Exp,
+    size = ~Population,
+    color = ~factor(Continent),
+    colors = c('#332288','#117733', '#0072B2', '#D55E00', '#882255'),
+    text = ~paste("Continent: ", Continent,
+                   "<br>Country: ", Country,
+                   "<br>Population: ", Population), 
+     hovertemplate = paste('<i><b>Life Expectancy<b></i>: %{y}',
+                           '<br><b>Income</b>:  %{x}',
+                           '<br><b>%{text}</b>'),
+     alpha  = 0.8,
+    marker = list(line=(list(color = "black"))),
+     type = "scatter") %>% 
+     layout(
+      title = list(text="Impact of Income on Global Life Expectancy as Seen in 2015 <br> Controlled for both region (Continent) and population size (Population)", y = 1.2),
+      xaxis = list(
+        title = "Average Annual Income ($/year)",
+        linecolor = "black"
+      ),
+      yaxis = list(
+        title = "Average Life Expectancy (years)"
+      ),
+      legend = list(title = list(text="Continent"), y= 0.8, x = 1),
+   annotations = list(  
+                     x = 0.8,
+                     y = 0.2, 
+                  font = list(size = 12, color = "darkred"),   
+                  text = "The point size is proportional to the country population size",   
+                  xref = "paper",    
+                  yref = "paper", 
+               xanchor = "center", 
+               yanchor = "bottom", 
+             showarrow = FALSE))
+      
+```
+
+
+The 2015 data shows similar trends as was seen in the 2000 data, with a positive correlation between average annual income and average life expectancy across all continents. Continents with a greater range of average incomes per person demonstrate a greater positive correlation between income and life expectancy.Population size is more difficult to observe with the above plot, but there appears to be a minor negative correlation for the Asia continent between both population size and life expectancy as well as population size and income per person.  This correlation is identified by the clustering of larger sized points closer towards the bottom left of the plot (lower values for both income and life expectancy)
+
+
+## All Data over Time
+
+```{r}
+plot_ly(
+    data = life.raw,
+    x = ~Income,  
+    y = ~Life_Exp,
+    size = ~Population,
+    color = ~factor(Continent),
+    colors = c('#332288','#117733', '#0072B2', '#D55E00', '#882255'),
+    frame = ~Year,
+    text = ~paste("Continent: ", Continent,
+                   "<br>Country: ", Country,
+                   "<br>Population: ", Population), 
+     hovertemplate = paste('<i><b>Life Expectancy<b></i>: %{y}',
+                           '<br><b>Income</b>:  %{x}',
+                           '<br><b>%{text}</b>'),
+     alpha  = 0.8,
+    marker = list(line=(list(color = "black"))),
+     type = "scatter") %>% 
+     layout(
+      title = list(text="Impact of Income on Global Life Expectancy for All Years <br> Controlled for both region (Continent) and population size (Population)", y = 1.2),
+      xaxis = list(
+        title = "Average Annual Income ($/year)"
+      ),
+      yaxis = list(
+        title = "Average Life Expectancy (years)"
+      ),
+      legend = list(title = list(text="Continent"), y= 0.8, x = 1),
+   annotations = list(  
+                     x = 0.8,
+                     y = 0.2, 
+                  font = list(size = 12, color = "darkred"),   
+                  text = "The point size is proportional to the country population size",   
+                  xref = "paper",    
+                  yref = "paper", 
+               xanchor = "center", 
+               yanchor = "bottom", 
+             showarrow = FALSE))
+      
+```
+
+
+In reviewing the Average Life Expectancy on a global scale to the Average Annual Income, the correlations seen in both the year 2000 and year 2015 analyses are not present throughout the entire range of years in which data is available.  Until approximately 1950 there was significant increase in Average Life Expectancy globally, with little increase in Average Annual Income.  Barring temporary Average Life Expectancy decreases that correspond to the years of both World Wars, Average Life Expectancy appears to be near independent from Average Annual Income. After 1950 the trends of positive correlation between Average Life Expectancy and Average Annual Income becomes more prevalent each year. 
+
+\
