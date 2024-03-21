@@ -239,7 +239,7 @@ DT::datatable(head(gas.raw, n=500), fillContainer = FALSE, options = list(pageLe
 ```
 
 
-##Prepping the Data
+## Prepping the Data
 
 In order to properly view 500 gas stations across the United States, the data frame <font color = "purple"><i>gas.raw<i></font> was capped at the first 500 entries to create the new reduced data frame named <font color = "purple"><i>gas<i></font>.
 
@@ -268,7 +268,7 @@ DT::datatable(gas, fillContainer = FALSE, options = list(pageLength = 10))
 <br>
 <br>
 
-##Plotting the Data
+## Plotting the Data
 
 ```{r}
 g <- list(      scope = 'usa',
@@ -363,6 +363,9 @@ DT::datatable(crime.2023, fillContainer = FALSE, options = list(pageLength = 10)
 <br>
 
 ## Plotting the Data
+
+Below you will find an interactive map outlining the crimes in Philadelphia throughout 2023.  Crimes are sorted by fatal/non-fatal using color.  Click on any data point to see additional information regarding the crime location.
+<br>
 
 ```{r}
 fatal.color <- rep("navy")
