@@ -1,0 +1,396 @@
+---
+title: "Maps, Maps, and More Maps"
+author: "Natalie LePera"
+date: "West Chester University <br>STA 503: Data Visualization"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+---
+
+```{=html}
+<style type="text/css">
+
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+/* mouse over link */
+div#TOC a:hover {
+  color: red;
+}
+
+/* unvisited link */
+div#TOC a:link {
+  color: blue;
+}
+
+
+
+h1.title {
+  font-size: 24px;
+  color: Darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.subtitle {
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { 
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h1 {
+    font-size: 24px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: center;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: green;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+
+</style>
+```
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")           # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+### ggplot and extensions
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("ggridges")) {
+    install.packages("ggridges")              
+    library("ggridges")
+}
+if (!require("graphics")) {
+    install.packages("graphics")              
+    library("graphics")
+}
+if (!require("openxlsx")) {
+    install.packages("openxlsx")              
+    library("openxlsx")
+}
+
+if (!require("lubridate")) {
+    install.packages("lubridate")              
+    library("lubridate")
+}
+if (!require("rjson")) {
+    install.packages("rjson")              
+    library("rjson")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")              
+    library("leaflet")
+}
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+\
+
+# Gas Station Data Mapping
+In order to review a selection of 500 random gas stations across the United States, the Gas Station - Point of Compromised data set was utilized.  This data set includes 72798 records, 30 feature variables and one binary outcome variable, all utilized to capture extensive details about gas stations nationwide.  Information from this dataset was read into the data frame named <font color = "purple"><i>gas.raw<i></font>
+
+
+```{r}
+gas.raw <- read.csv("https://nlepera.github.io/sta553/w07_maps/data/POC.csv")
+gas.raw <- gas.raw[order(-gas.raw$POCGAP), ]
+```
+
+```{r echo = TRUE}
+str(gas.raw)
+```
+
+As the variable names are coded, a summary of each variable name and purpose is included below:
+
+
+<center><div class='wrap'>
+<iframe src="https://nlepera.github.io/sta553/w07_maps/data/gas_variable_def.pdf" title="Variable Definitions" width="100%" height="100%"></iframe>
+</div></center>
+
+<br>
+A breif glimpse at the first 500 observations of the data frame <font color = "purple"><i>gas.raw<i></font> is included below
+<br>
+
+
+```{r}
+DT::datatable(head(gas.raw, n=500), fillContainer = FALSE, options = list(pageLength = 10))
+```
+
+
+##Prepping the Data
+
+In order to properly view 500 gas stations across the United States, the data frame <font color = "purple"><i>gas.raw<i></font> was capped at the first 500 entries to create the new reduced data frame named <font color = "purple"><i>gas<i></font>.
+
+Once truncated to 500 observations the data frame named <font color = "purple"><i>gas<i></font> was cleaned to remove all columns except the following:
+-   State
+-   County
+-   Address
+-   Zip Code
+-   Length in Months between current and previous compromised cards
+-   Longitude
+-   Latitude
+
+
+```{r}
+gas <- head(gas.raw, n=500) 
+gas <- subset(gas, select = c(STATE, county, ADDRESS, ZIPnew, xcoord, ycoord, POCGAP ))
+```
+
+```{r echo = TRUE}
+str(gas)
+```
+```{r}
+DT::datatable(gas, fillContainer = FALSE, options = list(pageLength = 10))
+```
+<br>
+<br>
+<br>
+
+##Plotting the Data
+
+```{r}
+g <- list(      scope = 'usa',
+           projection = list(type = 'albers usa'),
+             showland = TRUE,
+            landcolor = ("lightgray"),
+         subunitcolor = ("gray"),
+         countrycolor = ("gray"),
+         countrywidth = 0.5,
+         subunitwidth = 0.5
+       )
+
+fig.gas <- plot_geo(gas, lat = ~ycoord, lon = ~xcoord, color =~POCGAP) %>% 
+  add_markers( text = ~paste(ADDRESS, county, STATE, ZIPnew, paste("Time Since Last Compromised Card?:", POCGAP, "months"), 
+                             sep = "<br>"),
+               color = ~POCGAP,
+               colors = 'RdYlBu',
+               alpha = 0.85,
+              hoverinfo = "text")   %>% 
+  colorbar(title = "Time Since Last Compromised Card", y=0.85)  %>% 
+  layout( title = 'Compromised Cards Utilized at a Random Sampling <br> of 500 Gas Stations Across the United States<br>', 
+          geo = g )
+  
+fig.gas
+```
+
+
+# Philadelphia Crime Data Analysis
+
+In order to evaluate for any location trend related to fatality or prevelance of crime in the city of Philadelphia, the Philly Crime Data 2015-2024 dataset was utilized.
+
+  This data set includes 15520 records, of 18 variables, all utilized to capture extensive details about crimes committed in the city of Philadelphia.  Information from this dataset was read into the data frame named <font color = "purple"><i>crime.raw<i></font>.
+```{r}
+crime.raw <- read.csv("https://nlepera.github.io/sta553/w07_maps/data/PhillyCrimeSince2015.csv")
+```
+
+```{r echo = TRUE}
+str(crime.raw)
+```
+
+<br>
+A breif glimpse at the first 500 observations of the data frame <font color = "purple"><i>crime.raw<i></font> is included below
+<br>
+
+
+```{r}
+DT::datatable(head(crime.raw, n=500), fillContainer = FALSE, options = list(pageLength = 10))
+```
+
+
+As visibile in the summary table above, the year data required extraction from the date column.  
+
+```{r}
+crime.raw$year <- year(mdy_hm(crime.raw$date))
+```
+
+```{r echo=TRUE}
+str(crime.raw)
+```
+
+
+##Prepping the Data
+In order to properly view a subeset of the Philadelphia crime data the data frame <font color = "purple"><i>gas.raw<i></font> was transformed to filter for crimes in the year 2023, with the following variables included:
+
+-   Fatal
+-   Sex
+-   Block Number
+-   Street Name
+-   Zip Code
+-   Neighborhood
+-   Police District
+-   Longitude
+-   Latitude
+
+```{r}
+crime.2023 <- crime.raw %>% 
+  filter(year == 2023) %>% 
+  subset (select = c(fatal, sex, block_number, street_name, zip_code, neighborhood, police_district, lng, lat))
+```
+
+
+```{r echo=TRUE}
+str(crime.2023)
+```
+
+```{r}
+DT::datatable(crime.2023, fillContainer = FALSE, options = list(pageLength = 10))
+```
+
+<br>
+<br>
+<br>
+
+## Plotting the Data
+
+```{r}
+fatal.color <- rep("navy")
+fatal.color[which(crime.2023$fatal=="Fatal")] <- "Orange"
+fatal.color[which(crime.2023$fatal=="Nonfatal")] <- "Blue"
+
+label.msg <- paste(paste("Fatal?:", crime.2023$fatal),    
+                   paste("Sex:", crime.2023$sex),
+                   paste("Address:", crime.2023$block_number, crime.2023$street_name))
+
+leaflet(crime.2023) %>% 
+  addTiles() %>% 
+  addProviderTiles("Esri.WorldGrayCanvas") %>%
+  addCircleMarkers(
+            ~lng, 
+            ~lat,
+            color = fatal.color,
+            stroke = FALSE, 
+            fillOpacity = 0.4,
+            label = ~label.msg) %>% 
+  addTiles("2023 Crimes in Philadelphia") %>% 
+ addLegend(position = "bottomright", 
+            colors = c("blue", "orange"),
+            labels= c("Non-Fatal", "Fatal"),
+            title= "Victim Gender",
+            opacity = 0.4) 
+
+
+```
+
+\
