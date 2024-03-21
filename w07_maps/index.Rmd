@@ -330,7 +330,7 @@ str(crime.raw)
 ```
 
 
-##Prepping the Data
+## Prepping the Data
 In order to properly view a subeset of the Philadelphia crime data the data frame <font color = "purple"><i>gas.raw<i></font> was transformed to filter for crimes in the year 2023, with the following variables included:
 
 -   Fatal
