@@ -1,0 +1,352 @@
+---
+title: "The Smoking Gun: NHANES Health Data"
+author: "Natalie LePera"
+date: "STA 553 <br> West Chester University"
+output: 
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: yes
+    number_sections: yes
+    theme: readable
+---
+      
+
+<style type="text/css">
+div#TOC li {
+    list-style:none;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+h1.title {
+  font-size: 24px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { 
+  /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { 
+  /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h1 { 
+    /* Header 3 - and the author and data headers use this too  */
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+h2 { 
+    /* Header 3 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+h3 { 
+    /* Header 3 - and the author and data headers use this too  */
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    font-face: bold;
+    text-align: left;
+}
+h4 { 
+    /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+   /* center maps using chunk option: fig.align='center' */
+.html-widget {
+    margin: auto;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("sf")) {
+   install.packages("sf")
+   library(sf)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")           # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+### ggplot and extensions
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("ggridges")) {
+    install.packages("ggridges")              
+    library("ggridges")
+}
+if (!require("graphics")) {
+    install.packages("graphics")              
+    library("graphics")
+}
+if (!require("openxlsx")) {
+    install.packages("openxlsx")              
+    library("openxlsx")
+}
+
+if (!require("lubridate")) {
+    install.packages("lubridate")              
+    library("lubridate")
+}
+if (!require("rjson")) {
+    install.packages("rjson")              
+    library("rjson")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")              
+    library("leaflet")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+if (!require("htmlwidgets")) {
+    install.packages("htmlwidgets")              
+    library("htmlwidgets")
+}
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+# Initial Data Preparation in RStudio
+
+## Obtaining Data for Analysis
+
+The National Health and Nutrition Survey data as subsetted for use in Hosmer and Lemeshow’s (2000) Applied Logistic Regression: Second edition was obtained for use in this analysis.  This data has been compiled by the Centers for Disease Control (CDC) with the intent to assess the health and nutritional status of both adults and children in the United States. Additional information regarding the NHANES can be found at <a href="https://www.cdc.gov/nchs/nhanes/about_nhanes.htm">https://www.cdc.gov/nchs/nhanes/about_nhanes.htm</a>.
+
+<br>
+
+## Reviewing the Data Structure
+
+Prior to reading the data into RStudio, the accompanying data definitions were reviewed to obtain a preliminary understanding of the data type (categorical, numerical, logical).  A copy of the category definitions and data details are included below for easy reference.  
+
+```{r out.width="100%"}
+include_url("https://nlepera.github.io/sta553/w10_tableau_dashboard/data/nhanes_details.pdf")
+```
+
+<br>
+
+## Preparing the Data
+
+Once the preliminary definitions were reviewed, the NHANES data was downloaded and read into RStudio to create a data frame entitled `NHANES.raw`.
+
+```{r}
+NHANES.raw <- read.csv("https://nlepera.github.io/sta553/w10_tableau_dashboard/data/nhanes.csv")
+
+str(NHANES.raw)
+
+DT::datatable(NHANES.raw, fillContainer = TRUE, options = list(pageLength = 10, scrollY = "100eh"))
+
+```
+
+<br>
+<br>
+
+As described in the data definitions document, the first two columns of `NHANES.raw`, entitled `NHANES.raw$X` and `NHANES.raw$obs` include junk data that must be removed. Both columns are observation IDs which will serve no analytic purpose. A new data frame entitled `NHANES` was created as as subset of `NHANES.raw` without the observation IDs and junk values removed.  
+<br>
+
+```{r}
+NHANES <- subset(NHANES.raw, select = -c(X, obs)) %>% 
+  mutate(sex = 
+           case_when(sex == 0 ~ 'Female',
+                     sex == 1 ~ 'Male'),
+         race = 
+           case_when(race == 1 ~ 'White',
+                     race == 2 ~ 'Black',
+                     race == 3 ~ 'Other'),
+         past.smk = 
+           case_when(past.smk == 1 ~ 'Yes',
+                     past.smk == 2 ~ 'No'),
+         current.smk = 
+           case_when(current.smk == 1 ~ 'Yes',
+                     current.smk == 2 ~ 'No'),
+         hbp = 
+           case_when(hbp == 0 ~ 'No',
+                     hbp == 1 ~ 'Yes'))
+
+str(NHANES)
+```
+<br>
+<br>
+```{r}
+
+DT::datatable(NHANES, fillContainer = TRUE, options = list(pageLength = 10, scrollY = "100eh"))
+
+```
+
+<br>
+
+This cleaned data was then exported and uploaded to both <a href="https://github.com/nlepera/sta553/tree/main/w10_tableau_dashboard/data">Github</a> for retention and Tableau for transformation into a dashboard and story point. 
+
+<br>
+
+```{r echo=TRUE, eval=FALSE}
+write.xlsx(NHANES, "C:/Users/natal/OneDrive/Documents/School Files/Spring 2024/STA553 - Data Visualization/sta553/w10_tableau_dashboard/data/NHANES_clean.xlsx", row.names=FALSE )
+```
+
+
+<br>
+
+# Tableau
+
+## Additional Data Cleaning and Preparation
+
+Prior to creating any form of data visualization from the `NHANES` data loaded into Tableau, the associated column names were manually updated per the data definitions outlined in section 1.2.  A custom column entitled `Smoker Status` was created utilizing the conditional outcomes as outlined in item 14 of the data definitions. 
+
+## Dashboard
+
+
+<table width="90%">
+<tr>
+<td>
+<div class='tableauPlaceholder' id='viz1712880425328' style='position: relative'><noscript><a href='#'><img alt='Smoking Dashboard 'src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NH&#47;NHANESHealthData&#47;SmokingDashboard&#47;1_rss.png' style='border: none' /></a></noscript>
+<object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+<param name='embed_code_version' value='3' />
+<param name='site_root' value='' />
+<param name='name' value='NHANESHealthData&#47;SmokingDashboard' />
+<param name='tabs' value='no' />
+<param name='toolbar' value='yes' />
+<param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NH&#47;NHANESHealthData&#47;SmokingDashboard&#47;1.png' />
+<param name='animate_transition' value='yes' />
+<param name='display_static_image' value='yes' />
+<param name='display_spinner' value='yes' />
+<param name='display_overlay' value='yes' />
+<param name='display_count' value='yes' />
+<param name='language' value='en-US' /></object></div>
+
+<script type='text/javascript'>
+
+var divElement = document.getElementById('viz1712880425328');
+var vizElement = divElement.getElementsByTagName('object')[0];
+if ( divElement.offsetWidth > 800 ) {
+  vizElement.style.width='1000px';vizElement.style.height='827px';} 
+  else if ( divElement.offsetWidth > 500 ) {
+    vizElement.style.width='1000px';vizElement.style.height='827px';} 
+  else { vizElement.style.width='100%';vizElement.style.height='1477px';}
+var scriptElement = document.createElement('script');
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+vizElement.parentNode.insertBefore(scriptElement, vizElement);
+</script>
+</td>
+</tr>
+</table>
+
+<br>
+
+<a href="https://prod-useast-b.online.tableau.com/t/nl10316570740a22d2e/views/NHANESHealthData/SmokingDashboard">backup link</a>
+
+<br>
+
+## Story Point
+
+<table width="90%">
+<tr>
+<td>
+<div class='tableauPlaceholder' id='viz1712880999396' style='position: relative'><noscript><a href='#'><img alt='Smoking, Blood Pressure, and CholesterolAn analysis of confounding factors as determined by NHANE data ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NH&#47;NHANESHealthData-Storypoint&#47;SmokingHealth&#47;1_rss.png' style='border: none' /></a></noscript>
+
+<object class='tableauViz'  style='display:none;'>
+<param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+<param name='embed_code_version' value='3' />
+<param name='site_root' value='' />
+<param name='name' value='NHANESHealthData-Storypoint&#47;SmokingHealth' />
+<param name='tabs' value='no' />
+<param name='toolbar' value='yes' />
+<param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NH&#47;NHANESHealthData-Storypoint&#47;SmokingHealth&#47;1.png' />
+<param name='animate_transition' value='yes' />
+<param name='display_static_image' value='yes' />
+<param name='display_spinner' value='yes' />
+<param name='display_overlay' value='yes' />
+<param name='display_count' value='yes' />
+<param name='language' value='en-US' />
+<param name='filter' value='publish=yes' />
+</object>
+</div>
+
+<script type='text/javascript'>
+var divElement = document.getElementById('viz1712880999396');
+var vizElement = divElement.getElementsByTagName('object')[0];
+vizElement.style.width='1016px';vizElement.style.height='991px';
+var scriptElement = document.createElement('script');
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);
+</script>
+</td>
+</tr>
+</table>
+
+<br>
+<a href="https://prod-useast-b.online.tableau.com/t/nl10316570740a22d2e/views/NHANESHealthData/SmokingHealth/6f718b87-b23d-47d4-a3bd-658d75f4911a/ac3a98ef-a991-482e-a889-fca8e3de9bc2">backup link</a>
