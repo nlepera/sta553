@@ -1,4 +1,7 @@
-**Index**
+<HTML> 
+<body>
+<font size = 14><b>Index</b></font>
+  <p><i>This is not a formal page on my github, but I have created a directory to get you back to where you are going</i></p>
 
 <p>
   <ul>
@@ -12,5 +15,11 @@
     <li><b>w08_Advanced Maps</b> - <a href="https://rpubs.com/nlepera/sta553">GeoJSON and leaflet: The GeoSpatial Impact of Philadelphia Gun Violence</a></li>
     <li><b>w09_Tableau_Maps</b> - <a href="https://nlepera.github.io/sta553/w09_tableau_maps/">Tableau Interactive Map: An analysis of Presidential Election Data from 2000 through 2020</a></li>
     <li><b>w10_Tableau_Dashboard</b> - <a href="https://nlepera.github.io/sta553/w10_tableau_dashboard/">Tableau Dashboard & Story Point: An analysis of NHANES data of Smoking, Blood Pressure, and Serum Cholsesterol Levels</a></li>
-       </ul>
+    <li><b>w11_Shiny</b> - <a href="https://nlepera.shinyapps.io/w11_RShiny_Poisson/">Shiny App: Simulated Poissson Distribution Data</li> 
+    <li><b>w12_Shiny_Data</b> - <a href="https://nlepera.shinyapps.io/w12_shiny_data/">Shiny App:  Penguin Size Distribution Analysis</li>  
+
+    </ul>
 </p>
+
+</body>
+</HTML>
