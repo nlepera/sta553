@@ -1,0 +1,12 @@
+name: w12_shiny_data
+title: w12_shiny_data
+username: nlepera
+account: nlepera
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11858981
+bundleId: 8542685
+url: https://nlepera.shinyapps.io/w12_shiny_data/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
